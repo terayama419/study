@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Memo Delete</title>
+</head>
+<body>
+    <h1>削除確認</h1>
+
+    <p>本当にこのメモを削除しますか？</p>
+
+    <h3>{{ object.title }}</h3>
+    <p>{{ object.content }}</p>
+
+    <form method="post" action="{% url 'memo_delete' memo.pk %}">
+    {% csrf_token %}
+    <button type="submit">削除</button>
+    </form>
+
+    <a href="{% url 'memo_detail' object.pk %}">キャンセル</a>
+</body>
+</html>

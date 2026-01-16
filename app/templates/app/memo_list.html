@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Memo List</title>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Memo List</h1>
+
+    <div class="top-bar">
+        <form method="get" class="search-form">
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="検索キーワード"
+            >
+            <button type="submit">検索</button>
+        </form>
+
+        <a href="{% url 'memo_create' %}" class="button">新規作成</a>
+    </div>
+
+    <ul>
+        {% for memo in page_obj %}
+            <li class="memo-item">
+                <span class="memo-title">{{ memo.title }}</span>
+
+                <div class="memo-actions">
+                    <a href="{% url 'memo_update' memo.pk %}">編集</a>
+                    <form method="post" action="{% url 'memo_delete' memo.pk %}">
+                        {% csrf_token %}
+                        <button type="submit">削除</button>
+                    </form>
+                </div>
+            </li>
+        {% empty %}
+            <li>該当するメモはありません</li>
+        {% endfor %}
+    </ul>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}">前へ</a>
+        {% endif %}
+
+        <span>
+            Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?q={{ query }}&page={{ page_obj.next_page_number }}">次</a>
+        {% endif %}
+    </div>
+
+    <div class="logout">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">ログアウト</button>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

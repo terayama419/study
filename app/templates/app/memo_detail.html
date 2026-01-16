@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Memo Detail</title>
+</head>
+<body>
+    <h1>{{ memo.title }}</h1>
+
+    <p>{{ memo.content }}</p>
+    <small>{{ memo.created_at }}</small>
+
+    <hr>
+
+    <a href="{% url 'memo_update' memo.pk %}">編集</a>
+    |
+    <a href="{% url 'memo_delete' memo.pk %}">削除</a>
+    <br>
+    <a href="{% url 'memo_list' %}">一覧へ戻る</a>
+</body>
+</html>
