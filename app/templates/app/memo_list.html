@@ -28,6 +28,7 @@
         {% for memo in page_obj %}
             <li class="memo-item">
                 <span class="memo-title">{{ memo.title }}</span>
+                <span>{% if memo.category %}（{{ memo.category.name }}){% endif %}</span>
 
                 <div class="memo-actions">
                     <a href="{% url 'memo_update' memo.pk %}">編集</a>

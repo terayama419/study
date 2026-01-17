@@ -1,0 +1,9 @@
+<h2>カテゴリ登録</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">登録</button>
+</form>
+
+<a href="{% url 'memo_create' %}">メモ作成へ戻る</a>

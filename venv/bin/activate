@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV=/home/hoge/projects/venv
+VIRTUAL_ENV=/home/hoge/study/venv
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

@@ -1,14 +1,10 @@
-# app/views.py
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views import View
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Memo
-from .forms import MemoForm
-from django.db.models import Q
 from django.core.paginator import Paginator
-from django.contrib.auth.models import User
-from django.contrib.auth import login
-from .forms import SignUpForm
+from django.db.models import Q
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
+from app.forms import MemoForm
+from app.models import Memo
 
 class MemoCreateView(LoginRequiredMixin, View):
 # django.views.generic    
@@ -21,7 +17,7 @@ class MemoCreateView(LoginRequiredMixin, View):
         return render(request, 'app/memo_form.html', {'form': form})
 
     def post(self, request):
-        form = MemoForm(request.POST)
+        form = MemoForm(request.POST or None)
         if form.is_valid():
             memo = form.save(commit=False)
             # ログインユーザーをセット
@@ -37,7 +33,15 @@ class MemoListView(LoginRequiredMixin, View):
         keyword = request.GET.get('q', '')
         page_number = request.GET.get('page', 1)
 
-        memos = Memo.objects.filter(user=request.user)
+        # Cookieから取得
+        if not keyword:
+            keyword = request.COOKIES.get('last_search', '')
+
+        memos = (
+            Memo.objects
+            .filter(user=request.user)
+            .select_related('category')
+        )
 
         # AND 検索部分
         if keyword:
@@ -53,7 +57,7 @@ class MemoListView(LoginRequiredMixin, View):
         paginator = Paginator(memos, 5)
         page_obj = paginator.get_page(page_number)
 
-        return render(
+        response = render(
             request,
             'app/memo_list.html',
             {
@@ -61,6 +65,12 @@ class MemoListView(LoginRequiredMixin, View):
                 'keyword': keyword,
             }
         )
+    
+        # クッキーの保存
+        if keyword:
+            response.set_cookie('last_search', keyword, max_age=3600)
+
+        return response
 
 class MemoUpdateView(LoginRequiredMixin, View):
     def get(self, request, pk):
@@ -72,7 +82,7 @@ class MemoUpdateView(LoginRequiredMixin, View):
     def post(self, request, pk):
         # pk=id, テーブルからデータを取得する
         memo = get_object_or_404(Memo, pk=pk, user=request.user)
-        form = MemoForm(request.POST, instance=memo)
+        form = MemoForm(request.POST or None, instance=memo)
         if form.is_valid():
             form.save()
             return redirect('memo_list')
@@ -93,21 +103,3 @@ class MemoDeleteView(LoginRequiredMixin, View):
     #     return redirect('memo_list')
 
     # return render(request, 'app/memo_confirm_delete.html', {'memo': memo})
-
-class SignUpView(View):
-
-    def get(self, request):
-        form = SignUpForm()
-        return render(request, 'registration/signup.html', {'form': form})
-
-    def post(self, request):
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            user = User.objects.create_user(
-                username=form.cleaned_data['username'],
-                password=form.cleaned_data['password']
-            )
-            login(request, user)  # ← 自動ログイン
-            return redirect('memo_list')
-
-        return render(request, 'registration/signup.html', {'form': form})
